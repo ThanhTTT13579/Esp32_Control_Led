@@ -5,8 +5,12 @@ app = Flask(__name__)
 
 # Biến toàn cục để lưu trạng thái LED
 led_status = "OFF"
-esp_status = "UNKNOWN" # Trạng thái thật do ESP32 phản hồi
-history = []           # Lịch sử hoạt động
+esp_status = "Hello" # Trạng thái thật do ESP32 phản hồi
+history = [  # Dữ liệu mặc định để hiển thị thử trên trang /history
+    {"time": "2025-04-15 10:00:00", "status": "ON"},
+    {"time": "2025-04-15 10:05:00", "status": "OFF"},
+    {"time": "2025-04-15 10:10:00", "status": "ON"},
+]
 
 @app.route('/')
 def index():
@@ -28,6 +32,9 @@ def get_command():
 def report_status():
     global esp_status
     data = request.get_json()
+
+    print("Received JSON:", data)
+
     status = data.get("status")
 
     if status in ["ON", "OFF"]:
@@ -37,6 +44,11 @@ def report_status():
         print(f"[{timestamp}] ESP32 reported: {status}")
         return "Status recorded", 200
     return "Invalid status", 400
+
+@app.route('/get-real-status')
+def get_real_status():
+    return esp_status
+
 
 @app.route('/history')
 def view_history():

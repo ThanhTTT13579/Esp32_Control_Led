@@ -22,15 +22,18 @@
     <script>
         function sendCommand(cmd) {
             $.get('/set-command/' + cmd, function(data) {
-                $.get('/get-command', function(updatedStatus) {
-                    $('#status').text(updatedStatus);
-                });
+                // Sau khi gửi lệnh, chờ ESP32 phản hồi lại (tùy bạn delay bao lâu)
+                setTimeout(function () {
+                    $.get('/get-real-status', function(realStatus) {
+                        $('#status').text(realStatus);
+                    });
+                }, 1000); // chờ 1 giây cho ESP32 report về, bạn có thể điều chỉnh thời gian này
             });
         }
-
-        // Cập nhật trạng thái mỗi 5 giây
+    
+        // Cập nhật status mỗi 5 giây từ trạng thái thật của ESP32
         setInterval(function () {
-            $.get('/get-command', function (data) {
+            $.get('/get-real-status', function (data) {
                 $('#status').text(data);
             });
         }, 5000);
