@@ -1,5 +1,10 @@
 from flask import Flask, request, render_template
 from datetime import datetime
+import pytz
+from datetime import datetime
+
+# Cấu hình múi giờ Việt Nam
+vietnam_tz = pytz.timezone('Asia/Ho_Chi_Minh')
 
 app = Flask(__name__)
 
@@ -38,7 +43,7 @@ def report_status():
     status = data.get("status")
 
     if status in ["ON", "OFF"]:
-        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        timestamp = datetime.now(vietnam_tz).strftime("%Y-%m-%d %H:%M:%S")
         esp_status = status  # <--- Lưu lại trạng thái thực tế từ ESP32
         history.append({"time": timestamp, "status": status})
         print(f"[{timestamp}] ESP32 reported: {status}")
