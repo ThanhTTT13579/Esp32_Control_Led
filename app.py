@@ -37,18 +37,23 @@ def get_command():
 def report_status():
     global esp_status
     data = request.get_json()
-
-    print("Received JSON:", data)
-
     status = data.get("status")
 
-    if status in ["ON", "OFF"]:
+    # Nếu không hợp lệ thì bỏ qua
+    if status not in ["ON", "OFF"]:
+        return "Invalid status", 400
+
+    # Chỉ ghi vào history nếu trạng thái thay đổi
+    if status != esp_status:
         timestamp = datetime.now(vietnam_tz).strftime("%Y-%m-%d %H:%M:%S")
-        esp_status = status  # <--- Lưu lại trạng thái thực tế từ ESP32
+        esp_status = status
         history.append({"time": timestamp, "status": status})
         print(f"[{timestamp}] ESP32 reported: {status}")
-        return "Status recorded", 200
-    return "Invalid status", 400
+    else:
+        print("ESP32 reported same status. No change recorded.")
+
+    return "Status handled", 200
+
 
 @app.route('/get-real-status')
 def get_real_status():
